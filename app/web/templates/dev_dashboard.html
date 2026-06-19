@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Мои приложения — EbloidStore{% endblock %}
+{% block nav %}
+  <span class="muted">{{ user.display_name }}</span>
+  <a href="{{ url_for('web.dev_new_app') }}">+ Новое приложение</a>
+  <a href="{{ url_for('web.dev_logout') }}">Выйти</a>
+{% endblock %}
+{% block content %}
+<h2>Мои приложения</h2>
+{% if not apps %}
+  <div class="card">Пока нет приложений. <a href="{{ url_for('web.dev_new_app') }}">Отправить первое на модерацию</a>.</div>
+{% endif %}
+{% for app in apps %}
+<div class="card">
+  <div class="row">
+    {% if app.icon %}<img class="icon" src="{{ url_for('web.static', filename='uploads/' + app.icon) }}">{% else %}<div class="icon"></div>{% endif %}
+    <div style="flex:1">
+      <div class="row"><strong>{{ app.title }}</strong>
+        <span class="tag {{ app.status }}">{{ {'pending':'на проверке','approved':'опубликовано','rejected':'отклонено'}[app.status] }}</span>
+      </div>
+      <div class="muted">{{ app.package_name }} · v{{ app.version }} · {{ app.category or '—' }}</div>
+      {% if app.status == 'rejected' and app.reject_reason %}
+        <div class="muted" style="color:#e5484d">Причина: {{ app.reject_reason }}</div>
+      {% endif %}
+    </div>
+    <div class="muted">⭐ {{ app.rating }} · ⬇ {{ app.downloads }}</div>
+  </div>
+</div>
+{% endfor %}
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Админ-панель — EbloidStore{% endblock %}
+{% block content %}
+<div class="card" style="max-width:420px;margin:40px auto;">
+  <h2>Модерация · вход</h2>
+  <form method="post">
+    <label>Логин<input name="username" autofocus></label>
+    <label>Пароль<input type="password" name="password"></label>
+    <button class="btn" type="submit">Войти</button>
+  </form>
+</div>
+{% endblock %}

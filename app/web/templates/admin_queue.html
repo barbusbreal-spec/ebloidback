@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Очередь модерации — EbloidStore{% endblock %}
+{% block nav %}<a href="{{ url_for('web.admin_logout') }}">Выйти</a>{% endblock %}
+{% block content %}
+<h2>Модерация приложений</h2>
+<div class="row" style="margin-bottom:16px;gap:10px">
+  <a class="btn {{ 'secondary' if status != 'pending' }}" href="?status=pending">На проверке ({{ counts.pending }})</a>
+  <a class="btn {{ 'secondary' if status != 'approved' }}" href="?status=approved">Опубликованы ({{ counts.approved }})</a>
+  <a class="btn {{ 'secondary' if status != 'rejected' }}" href="?status=rejected">Отклонены ({{ counts.rejected }})</a>
+</div>
+{% if not apps %}<div class="card">Пусто.</div>{% endif %}
+{% for app in apps %}
+<div class="card">
+  <div class="row">
+    {% if app.icon %}<img class="icon" src="{{ url_for('web.static', filename='uploads/' + app.icon) }}">{% else %}<div class="icon"></div>{% endif %}
+    <div style="flex:1">
+      <strong><a href="{{ url_for('web.admin_app', app_id=app.id) }}">{{ app.title }}</a></strong>
+      <div class="muted">{{ app.package_name }} · v{{ app.version }} · {{ app.developer.username }}</div>
+    </div>
+    <a class="btn" href="{{ url_for('web.admin_app', app_id=app.id) }}">Открыть</a>
+  </div>
+</div>
+{% endfor %}
+{% endblock %}

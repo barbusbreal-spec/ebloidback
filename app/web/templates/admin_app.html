@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}{{ app.title }} — модерация{% endblock %}
+{% block nav %}<a href="{{ url_for('web.admin_queue') }}">← Очередь</a> <a href="{{ url_for('web.admin_logout') }}">Выйти</a>{% endblock %}
+{% block content %}
+<div class="card">
+  <div class="row">
+    {% if app.icon %}<img class="icon" src="{{ url_for('web.static', filename='uploads/' + app.icon) }}">{% else %}<div class="icon"></div>{% endif %}
+    <div style="flex:1">
+      <h2 style="margin:0">{{ app.title }}</h2>
+      <div class="muted">{{ app.package_name }} · v{{ app.version }} · {{ app.category }}</div>
+      <div class="muted">Разработчик: {{ app.developer.username }} ({{ app.developer.email }})</div>
+    </div>
+    <span class="tag {{ app.status }}">{{ app.status }}</span>
+  </div>
+
+  <p style="margin-top:16px"><strong>{{ app.short_description }}</strong></p>
+  <p class="muted" style="white-space:pre-wrap">{{ app.description }}</p>
+
+  {% if app.screenshots %}
+  <div class="shots" style="overflow-x:auto;white-space:nowrap;margin:14px 0">
+    {% for s in app.screenshots %}
+      <img src="{{ url_for('web.static', filename='uploads/' + s.path) }}">
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if app.apk_file %}
+  <p><a class="btn secondary" href="{{ url_for('web.static', filename='uploads/' + app.apk_file) }}">⬇ Скачать сборку</a></p>
+  {% endif %}
+</div>
+
+{% if app.status != 'approved' %}
+<div class="card">
+  <form method="post" action="{{ url_for('web.admin_approve', app_id=app.id) }}" style="display:inline">
+    <button class="btn" type="submit">✅ Одобрить и опубликовать</button>
+  </form>
+</div>
+{% endif %}
+
+{% if app.status != 'rejected' %}
+<div class="card">
+  <form method="post" action="{{ url_for('web.admin_reject', app_id=app.id) }}">
+    <label>Причина отклонения<textarea name="reason" rows="3"></textarea></label>
+    <button class="btn danger" type="submit">⛔ Отклонить</button>
+  </form>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Вход разработчика — EbloidStore{% endblock %}
+{% block nav %}<a href="{{ url_for('web.dev_register') }}">Регистрация</a>{% endblock %}
+{% block content %}
+<div class="card" style="max-width:420px;margin:40px auto;">
+  <h2>Кабинет разработчика</h2>
+  <form method="post">
+    <label>Логин или email<input name="username" autofocus></label>
+    <label>Пароль<input type="password" name="password"></label>
+    <button class="btn" type="submit">Войти</button>
+  </form>
+  <p class="muted" style="margin-top:14px;">Нет аккаунта? <a href="{{ url_for('web.dev_register') }}">Зарегистрироваться</a></p>
+</div>
+{% endblock %}

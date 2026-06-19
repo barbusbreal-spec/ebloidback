@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+*.db
+.env
+venv/
+.venv/
+# Загруженные пользователями файлы не коммитим, кроме .gitkeep
+app/web/static/uploads/icons/*
+app/web/static/uploads/screenshots/*
+app/web/static/uploads/apk/*
+!app/web/static/uploads/**/.gitkeep
+tmp/
+
+.venv/

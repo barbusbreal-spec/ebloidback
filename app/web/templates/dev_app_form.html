@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Новое приложение — EbloidStore{% endblock %}
+{% block nav %}<a href="{{ url_for('web.dev_dashboard') }}">← Назад</a>{% endblock %}
+{% block content %}
+<h2>Отправить приложение на модерацию</h2>
+<div class="card">
+  <form method="post" enctype="multipart/form-data">
+    <label>Название*<input name="title" required></label>
+    <label>Package name* (например com.mycompany.app)<input name="package_name" required></label>
+    <label>Краткое описание<input name="short_description" maxlength="280"></label>
+    <label>Полное описание<textarea name="description" rows="5"></textarea></label>
+    <label>Категория
+      <select name="category">
+        {% for c in categories %}<option value="{{ c }}">{{ c }}</option>{% endfor %}
+      </select>
+    </label>
+    <label>Версия<input name="version" value="1.0"></label>
+    <label>Иконка (png/jpg/webp)<input type="file" name="icon" accept="image/*"></label>
+    <label>Скриншоты (можно несколько)<input type="file" name="screenshots" accept="image/*" multiple></label>
+    <label>APK / AAB файл<input type="file" name="apk" accept=".apk,.aab,.zip"></label>
+    <button class="btn" type="submit">Отправить на проверку</button>
+  </form>
+</div>
+{% endblock %}
