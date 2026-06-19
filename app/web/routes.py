@@ -23,7 +23,7 @@ from ..models import (
     User,
     db,
 )
-from ..storage import save_apk, save_icon, save_screenshot
+from ..storage import cleanup_app_files, save_apk, save_icon, save_screenshot
 from ..telegram import notify_decision, notify_new_submission
 
 CATEGORIES = ["Игры", "Социальные", "Инструменты", "Образование",
@@ -147,9 +147,24 @@ def dev_new_app():
             db.session.rollback()
             flash(str(exc), "error")
             return render_template("dev_app_form.html", categories=CATEGORIES)
+        except OSError as exc:
+            # Нет места на диске / нет прав на запись — не роняем сайт, чистим за собой.
+            db.session.rollback()
+            cleanup_app_files(app)
+            flash("Не удалось сохранить файлы: возможно, закончилось место на "
+                  f"диске хостинга. ({exc})", "error")
+            return render_template("dev_app_form.html", categories=CATEGORIES)
+        except Exception as exc:  # noqa: BLE001 — любая ошибка не должна валить сайт
+            db.session.rollback()
+            cleanup_app_files(app)
+            flash(f"Ошибка при загрузке приложения: {exc}", "error")
+            return render_template("dev_app_form.html", categories=CATEGORIES)
 
         db.session.commit()
-        notify_new_submission(app)
+        try:
+            notify_new_submission(app)
+        except Exception:  # noqa: BLE001 — уведомление не критично
+            pass
         flash("Приложение отправлено на модерацию ✅", "ok")
         return redirect(url_for("web.dev_dashboard"))
 

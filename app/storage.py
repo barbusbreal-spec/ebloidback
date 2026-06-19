@@ -34,3 +34,19 @@ def save_screenshot(file_storage):
 
 def save_apk(file_storage):
     return _save(file_storage, "apk", current_app.config["ALLOWED_APK_EXT"])
+
+
+def cleanup_app_files(app):
+    """Удаляет уже сохранённые файлы приложения, если заявка не дошла до commit.
+
+    Защищает диск хостинга от накопления «осиротевших» загрузок при ошибке.
+    """
+    base = current_app.config["UPLOAD_FOLDER"]
+    rels = [app.icon, app.apk_file] + [s.path for s in getattr(app, "screenshots", [])]
+    for rel in rels:
+        if not rel:
+            continue
+        try:
+            os.remove(os.path.join(base, rel))
+        except OSError:
+            pass

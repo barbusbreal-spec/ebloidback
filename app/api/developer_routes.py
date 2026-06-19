@@ -46,27 +46,36 @@ def submit_app():
         developer_id=g.user.id,
         status=STATUS_PENDING,
     )
+    db.session.add(app)
     try:
         if "icon" in request.files:
             app.icon = save_icon(request.files["icon"])
         if "apk" in request.files:
             app.apk_file = save_apk(request.files["apk"])
-    except ValueError as exc:
-        return jsonify({"error": str(exc)}), 400
-
-    db.session.add(app)
-    db.session.flush()
-
-    try:
+        db.session.flush()
         for i, shot in enumerate(request.files.getlist("screenshots")):
             path = save_screenshot(shot)
             if path:
                 db.session.add(Screenshot(app_id=app.id, path=path, position=i))
     except ValueError as exc:
+        db.session.rollback()
+        cleanup_app_files(app)
         return jsonify({"error": str(exc)}), 400
+    except OSError as exc:
+        db.session.rollback()
+        cleanup_app_files(app)
+        return jsonify({"error": "Не удалось сохранить файлы (возможно, нет места "
+                                 f"на диске): {exc}"}), 507
+    except Exception as exc:  # noqa: BLE001 — не роняем процесс целиком
+        db.session.rollback()
+        cleanup_app_files(app)
+        return jsonify({"error": f"Ошибка загрузки: {exc}"}), 500
 
     g.user.is_developer = True
     db.session.commit()
 
-    notify_new_submission(app)
+    try:
+        notify_new_submission(app)
+    except Exception:  # noqa: BLE001
+        pass
     return jsonify({"app": app.to_dict(base_url(), full=True)}), 201
